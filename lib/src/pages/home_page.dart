@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:peliculas/src/providers/pelicula_provider.dart';
-import 'package:peliculas/src/widget/card_swiper_footer_widget.dart';
 
 import 'package:peliculas/src/widget/card_swiper_widget.dart';
 import 'package:peliculas/src/widget/movie_horizontal.dart';
@@ -9,6 +8,9 @@ class HomePage extends StatelessWidget {
   final peliculasProvider = new PeliculasProvider();
   @override
   Widget build(BuildContext context) {
+    //cargo el Sink la primera vez que se llama a la página
+    peliculasProvider.getPopulares();
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
@@ -51,7 +53,7 @@ class HomePage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               SizedBox(
-                width: 10.0,
+                width: 6.0,
               ),
               Text(
                 'Populares',
@@ -63,12 +65,15 @@ class HomePage extends StatelessWidget {
           SizedBox(
             height: 10.0,
           ),
-          FutureBuilder(
-            future: peliculasProvider.getPopulares(),
+          StreamBuilder(
+            stream: peliculasProvider.popularesStream,
+            //initialData: peliculasProvider.getPopulares(),
+            //future: peliculasProvider.getPopulares(),
             builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
               if (snapshot.hasData) {
                 return MovieHorizontal(
                   peliculas: snapshot.data,
+                  siguientePagina: peliculasProvider.getPopulares,
                 );
               } else {
                 return Container(

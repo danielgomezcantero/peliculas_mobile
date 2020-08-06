@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:peliculas/src/models/pelicula_model.dart';
@@ -8,6 +9,27 @@ class PeliculasProvider {
   String _apikey = '6cee1ce91f2e73cbad51cc7a92f2c6bb';
   String _url = 'api.themoviedb.org';
   String _language = 'es-ES';
+
+  int _peliculasPopulares = 0;
+
+  bool _cargando = false;
+
+  List<Pelicula> _popularesList = new List();
+
+  final _popularesStreamController =
+      StreamController<List<Pelicula>>.broadcast();
+
+  //Get para agregar peliculas al flujo
+  Function(List<Pelicula>) get popularesSink =>
+      _popularesStreamController.sink.add;
+
+  // Get para escuchar nuevas peliculas
+  Stream<List<Pelicula>> get popularesStream =>
+      _popularesStreamController.stream;
+
+  void _disposeStream() {
+    _popularesStreamController?.close();
+  }
 
   Future<List<Pelicula>> _procesarRespuesta(Uri url) async {
     final resp = await http.get(url);
@@ -27,18 +49,33 @@ class PeliculasProvider {
   }
 
   Future<List<Pelicula>> getPopulares() async {
-    final url = Uri.https(
-        _url, '3/movie/popular', {'api_key': _apikey, 'language': _language});
+    if (_cargando) return [];
 
-    final resp = await http.get(url);
+    _cargando = true;
 
-    final decodedData = jsonDecode(resp.body);
+    _peliculasPopulares++;
 
-    final peliculas = new Peliculas.fromJsonList(decodedData['results']);
+    print('Cargando siguientes....');
 
-    print('getPopulares');
-    print(peliculas.items[0]);
+    final url = Uri.https(_url, '3/movie/popular', {
+      'api_key': _apikey,
+      'language': _language,
+      'page': _peliculasPopulares.toString()
+    });
 
-    return peliculas.items;
+    // final resp = await http.get(url);
+    // final decodedData = jsonDecode(resp.body);
+    // final peliculas = new Peliculas.fromJsonList(decodedData['results']);
+    // return peliculas.items;
+
+    final resp = await _procesarRespuesta(url);
+    // obtengo la lista de peliculas y las agrego al nueva lista.
+
+    _popularesList.addAll(resp);
+    popularesSink(_popularesList);
+
+    _cargando = false;
+
+    return resp;
   }
 }
