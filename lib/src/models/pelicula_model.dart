@@ -17,20 +17,20 @@ class Peliculas {
 }
 
 class Pelicula {
-  double popularity;
-  int voteCount;
-  bool video;
-  String posterPath;
   int id;
+  bool video;
   bool adult;
-  String backdropPath;
-  String originalLanguage;
-  String originalTitle;
-  List<int> genreIds;
   String title;
-  double voteAverage;
   String overview;
+  List<int> genreIds;
+  int voteCount;
+  double popularity;
+  String posterPath;
+  double voteAverage;
+  String backdropPath;
+  String originalTitle;
   String releaseDate;
+  String originalLanguage;
 
   Pelicula({
     this.popularity,
@@ -64,5 +64,13 @@ class Pelicula {
     backdropPath = json['backdrop_path'];
     originalTitle = json['original_title'];
     originalLanguage = json['original_language'];
+  }
+
+  getPosterImg() {
+    if (posterPath == null) {
+      return 'https://sciences.ucf.edu/psychology/wp-content/uploads/sites/63/2019/09/No-Image-Available.png';
+    } else {
+      return 'https://image.tmdb.org/t/p/w500/$posterPath';
+    }
   }
 }
