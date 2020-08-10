@@ -43,8 +43,10 @@ class PeliculasProvider {
   }
 
   Future<List<Pelicula>> getEnCines() async {
-    final url = Uri.https(_url, '3/movie/now_playing',
-        {'api_key': _apikey, 'language': _language});
+    final url = Uri.https(_url, '3/movie/now_playing', {
+      'api_key': _apikey,
+      'language': _language,
+    });
 
     return await _procesarRespuesta(url);
   }
@@ -91,5 +93,12 @@ class PeliculasProvider {
     final actores = Actores.fromJsonList(dataDecoded['cast']);
 
     return actores.actoreslist;
+  }
+
+  Future<List<Pelicula>> buscarPeliculas(String query) async {
+    final url = Uri.https(_url, '3/search/movie',
+        {'api_key': _apikey, 'language': _language, 'query': query});
+
+    return await _procesarRespuesta(url);
   }
 }
